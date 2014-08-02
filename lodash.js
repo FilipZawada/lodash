@@ -4418,11 +4418,16 @@
       this.source = source
       this.funcs = [null];
       this.sourceIndex = 0;
-      this.take = null;
+      this.takeCount = null;
     }
 
     lazyWrapper.prototype.map = function(iterator) {
       this.funcs.push(iterator, false);
+      return this;
+    };
+
+    lazyWrapper.prototype.take = function(count) {
+      this.takeCount = count;
       return this;
     };
 
@@ -4437,21 +4442,21 @@
       this.funcs[0] = FILTERED_RESULT;
       var pipeline = createPipeline.apply(null, this.funcs)
 
-      var take = this.take,
+      var takeCount = this.takeCount,
           source = this.source,
           sourceIndex = this.sourceIndex;
 
-      if(take === null) take = this.source.length;
+      if(takeCount === null) takeCount = this.source.length;
 
       var result = [];
       var len = source.length;
 
-      while(take > 0 && sourceIndex < len)
+      while(takeCount > 0 && sourceIndex < len)
       {
         var value = pipeline(source[sourceIndex++])
         if(value !== FILTERED_RESULT)
         {
-          --take;
+          --takeCount;
           result.push(value);
         }
       }
