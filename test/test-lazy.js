@@ -758,6 +758,14 @@
         deepEqual(actual, [4, 3, 2, 1]);
       });
 
+      test("should respect the sequence in which it was called", 1, function () {
+        var collection = [1, 2, 3, 4];
+
+        var actual = _.lazy(collection).take(3).reverse().take(2).value();
+
+        deepEqual(actual, [3, 2]);
+      });
+
     })();
 
     /*--------------------------------------------------------------------------*/

@@ -4388,93 +4388,127 @@
      */
 
     function lazy(value) {
-      var result = new lazyWrapper(value);
-      return result;
+      return new lazyWrapper(value);
     }
 
-    function createPipeline(FILTERED, func1, cond1, func2, cond2, func3, cond3)
+    // todo: this is probably a bottle-neck - what about inlining? Worth checking.
+    function createPipeline(func1, func2, func3, func4, func5, func6, func7, func8)
     {
-      return function(x) {
-        if(!func1) return x;
-
-        if(!cond1) x = func1(x);
-        else if(!func1(x)) return FILTERED;
-
-        if(!func2) return x;
-
-        if(!cond2) x = func2(x);
-        else if(!func2(x)) return FILTERED;
-
-        if(!func3) return x;
-
-        if(!cond3) x = func3(x);
-        else if(!func3(x)) return FILTERED;
-
-        return x;
+      return function(o) {
+        func1 && func1(o)
+        && func2 && func2(o)
+        && func3 && func3(o)
+        && func4 && func4(o)
+        && func5 && func5(o)
+        && func6 && func6(o)
+        && func7 && func7(o)
+        && func8 && func8(o);
       }
     }
 
     function lazyWrapper(source) {
       this.source = source
-      this.funcs = [null];
-      this.sourceIndex = 0;
+      this.funcs = [];
       this.takeCount = null;
     }
 
     lazyWrapper.prototype.map = function(iterator) {
-      this.funcs.push(iterator, false);
+      this.funcs.push(function (o) {
+        o.value = iterator(o.value);
+        return true;
+      });
       return this;
     };
 
     lazyWrapper.prototype.take = function(count) {
-      this.takeCount = count;
+
+      var size = count;
+      this.funcs.push(function (o) {
+        o.size = size; // Math.min(o.size, count); - todo: can we remove?
+
+        if(o.index >= size) {
+          o.filtered = true;
+          return false;
+        } else if (--count <= 0) {
+          o.finished = true;
+        }
+        return true;
+      });
       return this;
     };
 
     lazyWrapper.prototype.filter = function(iterator) {
-      this.funcs.push(iterator, true);
+      this.funcs.push(function (o) {
+        if(!iterator(o.value)) {
+          o.filtered = true;
+          return false;
+        }
+        return true;
+      });
       return this;
     };
 
     lazyWrapper.prototype.reverse = function() {
-      this.sourceIndex = -1;
+      this.funcs.push(function (o) {
+        o.index = o.size - o.index - 1;
+        return true;
+      });
       return this;
     }
 
     lazyWrapper.prototype.value = function() {
 
-      var FILTERED_RESULT = {};
-      this.funcs[0] = FILTERED_RESULT;
+
       var pipeline = createPipeline.apply(null, this.funcs)
 
-      var takeCount = this.takeCount,
+      var limit = this.limit,
           source = this.source,
-          sourceIndex = this.sourceIndex,
+          sourceIndex = 0,
           sourceLength = source.length,
           dir = 1;
 
-      if(takeCount === null) {
-        takeCount = this.source.length;
-      }
-
-      if(sourceIndex < 0) {
-        sourceIndex += sourceLength;
-        dir = -1;
+      if(limit === null) {
+        limit = this.source.length;
       }
 
 
       var result = [];
 
-      while(takeCount > 0 && sourceIndex < sourceLength && sourceIndex >= 0)
+      var tmpLimit = 100;
+
+      var o = {
+        size : sourceLength,
+        value: 0,
+        index : 0,
+        filtered : false,
+        finished : false
+      }
+
+      var index = 0;
+
+      while(!o.finished && sourceIndex < sourceLength && tmpLimit--)
       {
-        var value = pipeline(source[sourceIndex]);
-        sourceIndex += dir;
-        if(value !== FILTERED_RESULT)
-        {
-          --takeCount;
-          result.push(value);
+        o.size = sourceLength;
+        o.value = source[sourceIndex];
+        o.index = sourceIndex;
+        o.filtered = false;
+        o.finished = false;
+        sourceIndex++;
+
+        pipeline(o);
+
+        if(!o.filtered) {
+          result[o.index] = o.value;
         }
       }
+
+      if(!tmpLimit)
+      {
+        throw new Error("Infinite loop spotted")
+      }
+
+      // filter undefined's - performance of this can be greatly improved.
+      result = _.filter(result, function(x) { return x !== undefined; });
 
       return result;
     };
