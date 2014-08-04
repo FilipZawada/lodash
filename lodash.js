@@ -4436,6 +4436,11 @@
       return this;
     };
 
+    lazyWrapper.prototype.reverse = function() {
+      this.sourceIndex = -1;
+      return this;
+    }
+
     lazyWrapper.prototype.value = function() {
 
       var FILTERED_RESULT = {};
@@ -4444,16 +4449,26 @@
 
       var takeCount = this.takeCount,
           source = this.source,
-          sourceIndex = this.sourceIndex;
+          sourceIndex = this.sourceIndex,
+          sourceLength = source.length,
+          dir = 1;
 
-      if(takeCount === null) takeCount = this.source.length;
+      if(takeCount === null) {
+        takeCount = this.source.length;
+      }
+
+      if(sourceIndex < 0) {
+        sourceIndex += sourceLength;
+        dir = -1;
+      }
+
 
       var result = [];
-      var len = source.length;
 
-      while(takeCount > 0 && sourceIndex < len)
+      while(takeCount > 0 && sourceIndex < sourceLength && sourceIndex >= 0)
       {
-        var value = pipeline(source[sourceIndex++])
+        var value = pipeline(source[sourceIndex]);
+        sourceIndex += dir;
         if(value !== FILTERED_RESULT)
         {
           --takeCount;

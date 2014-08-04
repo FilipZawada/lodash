@@ -734,6 +734,34 @@
 
     /*--------------------------------------------------------------------------*/
 
+    QUnit.module('lodash.lazy.reverse');
+
+    (function() {
+      test("should return existing wrapped values", 1, function () {
+        var wrapped = _.lazy();
+        strictEqual(wrapped.reverse(), wrapped);
+      });
+
+      test("should return reversed collection", 1, function () {
+        var collection = [1, 2, 3, 4];
+
+        var actual = _.lazy(collection).reverse().value();
+
+        deepEqual(actual, [4, 3, 2, 1]);
+      });
+
+      test("should stop when all accessible elements are computed", 1, function () {
+        var collection = [1, 2, 3, 4];
+
+        var actual = _.lazy(collection).reverse().take(5).value();
+
+        deepEqual(actual, [4, 3, 2, 1]);
+      });
+
+    })();
+
+    /*--------------------------------------------------------------------------*/
+
     QUnit.config.asyncRetries = 10;
     QUnit.config.hidepassed = true;
 
