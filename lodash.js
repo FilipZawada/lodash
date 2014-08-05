@@ -4409,6 +4409,10 @@
     function lazyWrapper(source) {
       this.source = source
       this.funcs = [];
+      this.min = 0;
+      this.max = source.length - 1;
+      this.filterApplied = false;
+      this.dir = 1;
       this.takeCount = null;
     }
 
@@ -4422,37 +4426,42 @@
 
     lazyWrapper.prototype.take = function(count) {
 
-      var size = count;
-      this.funcs.push(function (o) {
-        o.size = size; // Math.min(o.size, count); - todo: can we remove?
+      count = count || 1;
 
-        if(o.index >= size) {
-          o.filtered = true;
-          return false;
-        } else if (--count <= 0) {
-          o.finished = true;
-        }
-        return true;
+      this.funcs.push(function (o) {
+        return (o.finished = (--count <= 0))
       });
+
+      if(this.filterApplied) {
+        lazyWrapper.call(this, this.value()); // todo: this computation should be deferred
+      } else {
+        offsetRange(this, count * this.dir);
+      }
+
       return this;
     };
 
+    function offsetRange(object, offset) {
+      if(offset > 0) {
+        object.max = Math.min(object.max, object.min + (offset - 1));
+      } else {
+        object.min = Math.max(object.min, object.max + (offset + 1));
+      }
+    }
+
     lazyWrapper.prototype.filter = function(iterator) {
+
+      this.filterApplied = true;
+
       this.funcs.push(function (o) {
-        if(!iterator(o.value)) {
-          o.filtered = true;
-          return false;
-        }
-        return true;
+        return (o.accepted = iterator(o.value));
       });
+
       return this;
     };
 
     lazyWrapper.prototype.reverse = function() {
-      this.funcs.push(function (o) {
-        o.index = o.size - o.index - 1;
-        return true;
-      });
+      this.dir *= -1;
       return this;
     }
 
@@ -4463,9 +4472,8 @@
 
       var limit = this.limit,
           source = this.source,
-          sourceIndex = 0,
           sourceLength = source.length,
-          dir = 1;
+          dir = this.dir;
 
       if(limit === null) {
         limit = this.source.length;
@@ -4476,29 +4484,25 @@
 
       var tmpLimit = 100;
 
-      var o = {
-        size : sourceLength,
-        value: 0,
-        index : 0,
-        filtered : false,
-        finished : false
-      }
+      var o = {};
 
       var index = 0;
 
-      while(!o.finished && sourceIndex < sourceLength && tmpLimit--)
+      var sourceIndex = dir == 1 ? this.min : this.max;
+
+      while(!o.finished && sourceIndex >= this.min && sourceIndex <= this.max && tmpLimit--)
       {
         o.size = sourceLength;
         o.value = source[sourceIndex];
         o.index = sourceIndex;
-        o.filtered = false;
+        o.accepted = true;
         o.finished = false;
-        sourceIndex++;
+        sourceIndex += dir;
 
         pipeline(o);
 
-        if(!o.filtered) {
-          result[o.index] = o.value;
+        if(o.accepted) {
+          result[index++] = o.value;
         }
       }
 
@@ -4508,7 +4512,7 @@
       }
 
       // filter undefined's - performance of this can be greatly improved.
-      result = _.filter(result, function(x) { return x !== undefined; });
+//      result = _.filter(result, function(x) { return x !== undefined; });
 
       return result;
     };

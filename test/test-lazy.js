@@ -608,7 +608,7 @@
       function inc(x) { return x + 1; }
 
       test("should return an Object", 1, function() {
-        var actual = _.lazy();
+        var actual = _.lazy([]);
         ok(actual instanceof Object);
       });
 
@@ -659,7 +659,7 @@
 
     (function() {
       test("should return existing wrapped values", 1, function () {
-        var wrapped = _.lazy();
+        var wrapped = _.lazy([]);
         strictEqual(wrapped.map(), wrapped);
       });
 
@@ -682,7 +682,7 @@
     }
     (function() {
       test("should return existing wrapped values", 1, function () {
-        var wrapped = _.lazy();
+        var wrapped = _.lazy([]);
         strictEqual(wrapped.filter(), wrapped);
       });
 
@@ -705,7 +705,7 @@
       function gte3(x) { return x >= 3; }
 
       test("should return existing wrapped values", 1, function () {
-        var wrapped = _.lazy();
+        var wrapped = _.lazy([]);
 
         strictEqual(wrapped.take(), wrapped);
       });
@@ -738,7 +738,7 @@
 
     (function() {
       test("should return existing wrapped values", 1, function () {
-        var wrapped = _.lazy();
+        var wrapped = _.lazy([]);
         strictEqual(wrapped.reverse(), wrapped);
       });
 
