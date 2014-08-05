@@ -648,6 +648,15 @@
         deepEqual(_.lazy(collection).value(), collection);
       });
 
+      test("complex case 1", 1, function() {
+        var collection = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+        var actual = _.lazy(collection).reverse().take(8).filter(isEven)
+          .take(3).take(2).reverse().take(1).value();
+
+        deepEqual(actual, [6]);
+      });
+
     })();
 
     /*--------------------------------------------------------------------------*/
