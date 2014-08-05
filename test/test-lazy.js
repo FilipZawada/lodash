@@ -640,6 +640,7 @@
     QUnit.module('lodash.lazy.value');
 
     (function() {
+      function isEven(x) { return x % 2 == 0; }
 
       test("should return original collection", 1, function() {
         var collection = [1, 2, 3];
@@ -692,6 +693,14 @@
         var actual = _.lazy(collection).filter(isEven).value();
 
         deepEqual(actual, [2, 4]);
+      });
+
+      test("should filter already limited collection", 1, function () {
+        var collection = [1, 2, 3, 4];
+
+        var actual = _.lazy(collection).take(2).filter(isEven).value()
+
+        deepEqual(actual, [2]);
       });
     })();
 

@@ -4427,7 +4427,7 @@
       count = count || 1;
 
       this.funcs.push(function (o) {
-        return (o.finished = (--count <= 0))
+        return (o.running = (--count > 0));
       });
 
       if(this.filterApplied) {
@@ -4468,17 +4468,17 @@
           source = this.source,
           dir = this.dir,
           result = [],
-          o = {},
+          o = { running: true },
           resultIndex = 0,
           min = this.min,
           max = this.max,
           sourceIndex = (dir == 1 ? min : max);
 
-      while(!o.finished && sourceIndex >= min && sourceIndex <= max)
+      while(o.running && sourceIndex >= min && sourceIndex <= max)
       {
         o.value = source[sourceIndex];
         o.accepted = true;
-        o.finished = false;
+        o.running = true;
 
         sourceIndex += dir;
 
