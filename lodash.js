@@ -4413,7 +4413,6 @@
       this.max = source.length - 1;
       this.filterApplied = false;
       this.dir = 1;
-      this.takeCount = null;
     }
 
     lazyWrapper.prototype.map = function(iterator) {
@@ -4425,7 +4424,6 @@
     };
 
     lazyWrapper.prototype.take = function(count) {
-
       count = count || 1;
 
       this.funcs.push(function (o) {
@@ -4450,7 +4448,6 @@
     }
 
     lazyWrapper.prototype.filter = function(iterator) {
-
       this.filterApplied = true;
 
       this.funcs.push(function (o) {
@@ -4467,52 +4464,30 @@
 
     lazyWrapper.prototype.value = function() {
 
-
-      var pipeline = createPipeline.apply(null, this.funcs)
-
-      var limit = this.limit,
+      var pipeline = createPipeline.apply(null, this.funcs),
           source = this.source,
-          sourceLength = source.length,
-          dir = this.dir;
+          dir = this.dir,
+          result = [],
+          o = {},
+          resultIndex = 0,
+          min = this.min,
+          max = this.max,
+          sourceIndex = (dir == 1 ? min : max);
 
-      if(limit === null) {
-        limit = this.source.length;
-      }
-
-
-      var result = [];
-
-      var tmpLimit = 100;
-
-      var o = {};
-
-      var index = 0;
-
-      var sourceIndex = dir == 1 ? this.min : this.max;
-
-      while(!o.finished && sourceIndex >= this.min && sourceIndex <= this.max && tmpLimit--)
+      while(!o.finished && sourceIndex >= min && sourceIndex <= max)
       {
-        o.size = sourceLength;
         o.value = source[sourceIndex];
-        o.index = sourceIndex;
         o.accepted = true;
         o.finished = false;
+
         sourceIndex += dir;
 
         pipeline(o);
 
         if(o.accepted) {
-          result[index++] = o.value;
+          result[resultIndex++] = o.value;
         }
       }
-
-      if(!tmpLimit)
-      {
-        throw new Error("Infinite loop spotted")
-      }
-
-      // filter undefined's - performance of this can be greatly improved.
-//      result = _.filter(result, function(x) { return x !== undefined; });
 
       return result;
     };
