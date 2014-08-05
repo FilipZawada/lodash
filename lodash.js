@@ -4439,6 +4439,13 @@
       return this;
     };
 
+    lazyWrapper.prototype.last = function(count) {
+      this.reverse();
+      this.take(count);
+      this.reverse();
+      return this;
+    };
+
     function offsetRange(object, offset) {
       if(offset > 0) {
         object.max = Math.min(object.max, object.min + (offset - 1));
