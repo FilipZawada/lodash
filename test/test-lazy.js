@@ -705,6 +705,23 @@
       });
     })();
 
+    /*--------------------------------------------------------------------------*/
+    QUnit.module('lodash.lazy.pluck');
+
+    (function() {
+
+      test('should return wrapper', 1, function() {
+        var wrapped = _.lazy([]);
+        strictEqual(wrapped.pluck('a'), wrapped);
+      });
+
+      test('should use the first element of a collection as the default `accumulator`', 1, function() {
+        var collection = [{a:1}, {a:2}, {a:3}];
+
+        deepEqual(_.lazy(collection).pluck('a').value(), [1, 2, 3]);
+      });
+    })();
+
 
     /*--------------------------------------------------------------------------*/
 

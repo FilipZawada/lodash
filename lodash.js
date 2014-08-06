@@ -4464,6 +4464,10 @@
       return reduce.apply(null, args);
     }
 
+    LazyWrapper.prototype.pluck = function(key) {
+      return this.map(property(key));
+    }
+
     LazyWrapper.prototype.value = function() {
 
       var dir = this.dir,
