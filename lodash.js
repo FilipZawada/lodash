@@ -4391,32 +4391,18 @@
       return new lazyWrapper(value);
     }
 
-    // todo: this is probably a bottle-neck - what about inlining? Worth checking.
-    function createPipeline(func1, func2, func3, func4, func5, func6, func7, func8)
-    {
-      return function(o) {
-        func1 && func1(o)
-        && func2 && func2(o)
-        && func3 && func3(o)
-        && func4 && func4(o)
-        && func5 && func5(o)
-        && func6 && func6(o)
-        && func7 && func7(o)
-        && func8 && func8(o);
-      }
-    }
-
     function lazyWrapper(source) {
-      this.source = source
+      this.source = source;
       this.funcs = [];
       this.min = 0;
       this.max = source.length - 1;
+      this.limit = this.max;
       this.filterApplied = false;
       this.dir = 1;
     }
 
     lazyWrapper.prototype.map = function(iterator) {
-      this.funcs.push(function (o) {
+      this.funcs.push(function __map(o) {
         o.value = iterator(o.value);
         return true;
       });
@@ -4426,14 +4412,20 @@
     lazyWrapper.prototype.take = function(count) {
       count = count || 1;
 
-      this.funcs.push(function (o) {
+      this.limit = Math.min(this.limit, count);
+
+      this.funcs.push(function __take(o) {
         return (o.running = (--count > 0));
       });
 
       if(this.filterApplied) {
-        lazyWrapper.call(this, this.value()); // todo: this computation should be deferred
+        this.constructor(this.value());
       } else {
-        offsetRange(this, count * this.dir);
+        if(this.dir > 0) {
+          this.max = Math.min(this.max, this.min + (count - 1));
+        } else {
+          this.min = Math.max(this.min, this.max - (count - 1));
+        }
       }
 
       return this;
@@ -4446,18 +4438,10 @@
       return this;
     };
 
-    function offsetRange(object, offset) {
-      if(offset > 0) {
-        object.max = Math.min(object.max, object.min + (offset - 1));
-      } else {
-        object.min = Math.max(object.min, object.max + (offset + 1));
-      }
-    }
-
     lazyWrapper.prototype.filter = function(iterator) {
       this.filterApplied = true;
 
-      this.funcs.push(function (o) {
+      this.funcs.push(function __filter(o) {
         return (o.accepted = iterator(o.value));
       });
 
@@ -4471,31 +4455,40 @@
 
     lazyWrapper.prototype.value = function() {
 
-      var pipeline = createPipeline.apply(null, this.funcs),
+      var dir = this.dir;
           source = this.source,
-          dir = this.dir,
-          result = [],
-          o = { running: true },
+          f = this.funcs;
+          result = source.slice(0, this.limit),
+          o = { running: true, accepted: true, value: null },
           resultIndex = 0,
           min = this.min,
           max = this.max,
-          sourceIndex = (dir == 1 ? min : max);
+          sourceIndex = (dir == 1 ? min : max),
+          f0 = f[0], f1 = f[1], f2 = f[2], f3 = f[3], f4 = f[4], f5 = f[5], f6 = f[6], f7 = f[7], f8 = f[8];
 
-      while(o.running && sourceIndex >= min && sourceIndex <= max)
-      {
+      while (sourceIndex <= max && sourceIndex >= min) {
         o.value = source[sourceIndex];
-        o.accepted = true;
-        o.running = true;
-
         sourceIndex += dir;
 
-        pipeline(o);
+        f0 && f0(o)
+        && f1 && f1(o)
+        && f2 && f2(o)
+        && f3 && f3(o)
+        && f4 && f4(o)
+        && f5 && f5(o)
+        && f6 && f6(o)
+        && f7 && f7(o);
 
-        if(o.accepted) {
+        if (o.accepted) {
           result[resultIndex++] = o.value;
+
+          if (!o.running) break;
+        } else {
+          o.accepted = true;
         }
       }
 
+      result.length = resultIndex;
       return result;
     };
 
