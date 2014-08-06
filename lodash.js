@@ -4388,13 +4388,18 @@
      */
 
     function lazy(value) {
-      return new lazyWrapper(value);
+      return new LazyWrapper(value);
     }
 
-    function lazyWrapper(source) {
+    LazyWrapper.MAP_FLAG = 1;
+    LazyWrapper.FILTER_FLAG = 2;
+    LazyWrapper.TAKE_FLAG = 3;
+
+    function LazyWrapper(source) {
       this.source = source;
       this.funcs = [];
       this.flags = [];
+      this.counts = [];
       this.min = 0;
       this.max = source.length - 1;
       this.limit = this.max;
@@ -4402,26 +4407,25 @@
       this.dir = 1;
     }
 
-    lazyWrapper.prototype.map = function(iterator) {
+    LazyWrapper.prototype.map = function(iterator) {
       this.funcs.push(iterator);
-      this.flags.push(1);
+      this.flags.push(LazyWrapper.MAP_FLAG);
+      this.counts.push(0);
 
       return this;
     };
 
-    lazyWrapper.prototype.take = function(count) {
+    LazyWrapper.prototype.take = function(count) {
       count = count || 1;
 
       this.limit = Math.min(this.limit, count);
 
-      this.funcs.push(function __take() {
-        return --count > 0;
-      });
-
-      this.flags.push(3);
+      this.funcs.push(function() {});
+      this.counts.push(count);
+      this.flags.push(LazyWrapper.TAKE_FLAG);
 
       if(this.filterApplied) {
-        this.constructor(this.value());
+        this.constructor(this.value()); // todo: this computation should be deferred
       } else {
         if(this.dir > 0) {
           this.max = Math.min(this.max, this.min + (count - 1));
@@ -4433,89 +4437,62 @@
       return this;
     };
 
-    lazyWrapper.prototype.last = function(count) {
+    LazyWrapper.prototype.last = function(count) {
       this.reverse();
       this.take(count);
       this.reverse();
       return this;
     };
 
-    lazyWrapper.prototype.filter = function(iterator) {
+    LazyWrapper.prototype.filter = function(iterator) {
       this.filterApplied = true;
 
       this.funcs.push(iterator);
-      this.flags.push(2);
+      this.flags.push(LazyWrapper.FILTER_FLAG);
+      this.counts.push(0);
 
       return this;
     };
 
-    lazyWrapper.prototype.reverse = function() {
+    LazyWrapper.prototype.reverse = function() {
       this.dir *= -1;
       return this;
     }
 
-    lazyWrapper.prototype.value = function() {
+    LazyWrapper.prototype.value = function() {
 
       var dir = this.dir,
-          min = this.min,
-          max = this.max,
-          source = this.source,
-          sourceIndex = (dir == 1 ? min : max),
-          f = this.funcs,
-          l = this.flags,
-          result = [],
-          resultIndex = 0,
-          f0 = f[0], f1 = f[1], f2 = f[2], f3 = f[3],
-          f4 = f[4], f5 = f[5], f6 = f[6], f7 = f[7],
-          c0 = l[0], c1 = l[1], c2 = l[2], c3 = l[3],
-          c4 = l[4], c5 = l[5], c6 = l[6], c7 = l[7];
+        min = this.min,
+        max = this.max,
+        source = this.source,
+        sourceIndex = (dir == 1 ? min : max),
+        result = [],
+        resultIndex = 0,
+        funcs = this.funcs,
+        flags = this.flags,
+        counts = this.counts,
+        num = funcs.length;
 
-
-      while (sourceIndex <= max && sourceIndex >= min) {
+      lazy:while (sourceIndex <= max && sourceIndex >= min) {
         var val = source[sourceIndex];
         sourceIndex += dir;
 
-        if(f0) {
-          if(c0 == 1) val = f0(val);
-          else if(c0 == 2 && !f0(val)) continue;
-          else if(c0 == 3 && !f0(val)) sourceIndex = max + 1;
-
-          if (f1) {
-            if(c1 == 1) val = f1(val);
-            else if(c1 == 2 && !f1(val)) continue;
-            else if(c1 == 3 && !f1(val)) sourceIndex = max + 1;
-
-            if (f2) {
-              if(c2 == 1) val = f2(val);
-              else if(c2 == 2 && !f2(val)) continue;
-              else if(c2 == 3 && !f2(val)) sourceIndex = max + 1;
-
-              if (f3) {
-                if(c3 == 1) val = f3(val);
-                else if(c3 == 2 && !f3(val)) continue;
-                else if(c3 == 3 && !f3(val)) sourceIndex = max + 1;
-
-                if (f4) {
-                  if(c4 == 1) val = f4(val);
-                  else if(c4 == 2 && !f4(val)) continue;
-                  else if(c4 == 3 && !f4(val)) sourceIndex = max + 1;
-
-                  if (f5) {
-                    if(c5 == 1) val = f5(val);
-                    else if(c5 == 2 && !f5(val)) continue;
-                    else if(c5 == 3 && !f5(val)) sourceIndex = max + 1;
-
-                    if (f6) {
-                      if(c6 == 1) val = f6(val);
-                      else if(c6 == 2 && !f6(val)) continue;
-                      else if(c6 == 3 && !f6(val)) sourceIndex = max + 1;
-
-                      if(f7) throw new Error("unsupported");
-                    }
-                  }
-                }
+        for (var i = 0; i < num; i++) {
+          var func = funcs[i];
+          switch (flags[i]) {
+            case 1: //LazyWrapper.MAP_FLAG:
+              val = func(val);
+              break;
+            case 2: //LazyWrapper.FILTER_FLAG:
+              if (!func(val)) {
+                continue lazy;
               }
-            }
+              break;
+            case 3: //LazyWrapper.TAKE_FLAG:
+              if (--counts[i] <= 0) {
+                sourceIndex = max + 1; // finishes lazy loop by making its condition unsatisfied.
+              }
+              break;
           }
         }
 
@@ -4524,6 +4501,7 @@
 
       return result;
     };
+
 
     /**
      * This method invokes `interceptor` and returns `value`. The interceptor is
