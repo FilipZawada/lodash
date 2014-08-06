@@ -4394,6 +4394,7 @@
     function lazyWrapper(source) {
       this.source = source;
       this.funcs = [];
+      this.flags = [];
       this.min = 0;
       this.max = source.length - 1;
       this.limit = this.max;
@@ -4402,10 +4403,9 @@
     }
 
     lazyWrapper.prototype.map = function(iterator) {
-      this.funcs.push(function __map(o) {
-        o.value = iterator(o.value);
-        return true;
-      });
+      this.funcs.push(iterator);
+      this.flags.push(1);
+
       return this;
     };
 
@@ -4414,9 +4414,11 @@
 
       this.limit = Math.min(this.limit, count);
 
-      this.funcs.push(function __take(o) {
-        return (o.running = (--count > 0));
+      this.funcs.push(function __take() {
+        return --count > 0;
       });
+
+      this.flags.push(3);
 
       if(this.filterApplied) {
         this.constructor(this.value());
@@ -4441,9 +4443,8 @@
     lazyWrapper.prototype.filter = function(iterator) {
       this.filterApplied = true;
 
-      this.funcs.push(function __filter(o) {
-        return (o.accepted = iterator(o.value));
-      });
+      this.funcs.push(iterator);
+      this.flags.push(2);
 
       return this;
     };
@@ -4455,40 +4456,72 @@
 
     lazyWrapper.prototype.value = function() {
 
-      var dir = this.dir;
-          source = this.source,
-          f = this.funcs;
-          result = source.slice(0, this.limit),
-          o = { running: true, accepted: true, value: null },
-          resultIndex = 0,
+      var dir = this.dir,
           min = this.min,
           max = this.max,
+          source = this.source,
           sourceIndex = (dir == 1 ? min : max),
-          f0 = f[0], f1 = f[1], f2 = f[2], f3 = f[3], f4 = f[4], f5 = f[5], f6 = f[6], f7 = f[7], f8 = f[8];
+          f = this.funcs,
+          l = this.flags,
+          result = [],
+          resultIndex = 0,
+          f0 = f[0], f1 = f[1], f2 = f[2], f3 = f[3],
+          f4 = f[4], f5 = f[5], f6 = f[6], f7 = f[7],
+          c0 = l[0], c1 = l[1], c2 = l[2], c3 = l[3],
+          c4 = l[4], c5 = l[5], c6 = l[6], c7 = l[7];
+
 
       while (sourceIndex <= max && sourceIndex >= min) {
-        o.value = source[sourceIndex];
+        var val = source[sourceIndex];
         sourceIndex += dir;
 
-        f0 && f0(o)
-        && f1 && f1(o)
-        && f2 && f2(o)
-        && f3 && f3(o)
-        && f4 && f4(o)
-        && f5 && f5(o)
-        && f6 && f6(o)
-        && f7 && f7(o);
+        if(f0) {
+          if(c0 == 1) val = f0(val);
+          else if(c0 == 2 && !f0(val)) continue;
+          else if(c0 == 3 && !f0(val)) sourceIndex = max + 1;
 
-        if (o.accepted) {
-          result[resultIndex++] = o.value;
+          if (f1) {
+            if(c1 == 1) val = f1(val);
+            else if(c1 == 2 && !f1(val)) continue;
+            else if(c1 == 3 && !f1(val)) sourceIndex = max + 1;
 
-          if (!o.running) break;
-        } else {
-          o.accepted = true;
+            if (f2) {
+              if(c2 == 1) val = f2(val);
+              else if(c2 == 2 && !f2(val)) continue;
+              else if(c2 == 3 && !f2(val)) sourceIndex = max + 1;
+
+              if (f3) {
+                if(c3 == 1) val = f3(val);
+                else if(c3 == 2 && !f3(val)) continue;
+                else if(c3 == 3 && !f3(val)) sourceIndex = max + 1;
+
+                if (f4) {
+                  if(c4 == 1) val = f4(val);
+                  else if(c4 == 2 && !f4(val)) continue;
+                  else if(c4 == 3 && !f4(val)) sourceIndex = max + 1;
+
+                  if (f5) {
+                    if(c5 == 1) val = f5(val);
+                    else if(c5 == 2 && !f5(val)) continue;
+                    else if(c5 == 3 && !f5(val)) sourceIndex = max + 1;
+
+                    if (f6) {
+                      if(c6 == 1) val = f6(val);
+                      else if(c6 == 2 && !f6(val)) continue;
+                      else if(c6 == 3 && !f6(val)) sourceIndex = max + 1;
+
+                      if(f7) throw new Error("unsupported");
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
+
+        result[resultIndex++] = val;
       }
 
-      result.length = resultIndex;
       return result;
     };
 

@@ -624,8 +624,9 @@
       test("computes minimal number of elements required", 1, function () {
         var spy = {
           toString: function() { throw new Error('this object should never be called')}
-        }
-        var collection = [1,2,1,spy,spy];
+        };
+
+        var collection = [1, 2, 1, spy, spy];
 
         var actual = _.lazy(collection).map(inc).filter(isEven).map(inc).take(2).value();
         var expected = [3, 3];
