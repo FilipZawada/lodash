@@ -661,6 +661,28 @@
     })();
 
     /*--------------------------------------------------------------------------*/
+    QUnit.module('lodash.lazy.reduce');
+
+    (function() {
+      function sum(x, y) { return x + y; }
+      function first(x, y) { return x; }
+
+      test('should use the first element of a collection as the default `accumulator`', 1, function() {
+        var collection = [1, 2, 3];
+        strictEqual(_.lazy(collection).reduce(sum), 6);
+      });
+
+      test("should use the first element as accumulator", 1, function() {
+        var collection = [2, 3, 4, 5, 6, 7, 8];
+
+        var actual = _.lazy(collection).reduce(first, 1);
+
+        strictEqual(actual, 1);
+      });
+
+    })();
+
+    /*--------------------------------------------------------------------------*/
 
     QUnit.module('lodash.lazy.map');
 

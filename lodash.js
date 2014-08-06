@@ -4459,6 +4459,11 @@
       return this;
     }
 
+    LazyWrapper.prototype.reduce = function(iterator, accumulator, thisArg) {
+      var args = [this.value()].concat(slice(arguments));
+      return reduce.apply(null, args);
+    }
+
     LazyWrapper.prototype.value = function() {
 
       var dir = this.dir,
