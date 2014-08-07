@@ -4460,9 +4460,16 @@
       return this;
     }
 
+    function lazyEach(collection, iterator) {
+      // assert that collection is LazyWrapper
+      collection.each(iterator);
+      return collection;
+    }
+
     LazyWrapper.prototype.reduce = function(iterator, accumulator, thisArg) {
-      var args = [this.value()].concat(slice(arguments));
-      return reduce.apply(null, args);
+      var collection = this;
+      var func = isArray(collection) ? arrayReduce : baseReduce; // always `baseReduce` - this is just to demonstarte
+      return func(collection, getCallback(iterator, thisArg, 4), accumulator, arguments.length < 2, lazyEach);
     }
 
     LazyWrapper.prototype.pluck = function(key) {

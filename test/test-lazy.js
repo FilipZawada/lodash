@@ -699,7 +699,7 @@
         strictEqual(_.lazy(collection).reduce(sum), 6);
       });
 
-      test("should use the first element as accumulator", 1, function() {
+      test("should use the first element as the accumulator", 1, function() {
         var collection = [2, 3, 4, 5, 6, 7, 8];
 
         var actual = _.lazy(collection).reduce(first, 1);
