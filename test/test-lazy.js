@@ -753,6 +753,25 @@
     })();
 
     /*--------------------------------------------------------------------------*/
+
+    QUnit.module('lodash.lazy.countBy');
+
+    (function() {
+
+      test("should return the composed aggregate object", 3, function () {
+        var actual = _.lazy([4.3, 6.1, 6.4]).countBy(function(num) { return Math.floor(num); });
+
+        deepEqual(actual, { '4': 1, '6': 2 });
+
+        actual = _.lazy([4.3, 6.1, 6.4]).countBy(function(num) { return this.floor(num); }, Math);
+        deepEqual(actual, { '4': 1, '6': 2 });
+
+        actual = _.lazy(['one', 'two', 'three']).countBy('length');
+        deepEqual(actual, { '3': 2, '5': 1 });
+      });
+    })();
+
+    /*--------------------------------------------------------------------------*/
     QUnit.module('lodash.lazy.pluck');
 
     (function() {
@@ -826,7 +845,7 @@
       test("should limit number of elements returned when filter is applied", 1, function () {
         var spy = {
           toString: function() { throw new Error('this object should never be called')}
-        }
+        };
 
         var collection = [1, 2, 3, 4, spy];
 
@@ -861,7 +880,7 @@
       test("should limit number of elements returned when filter is applied", 1, function () {
         var spy = {
           toString: function() { throw new Error('this object should never be called')}
-        }
+        };
 
         var collection = [spy, spy, spy, 4, 5];
 

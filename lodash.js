@@ -2591,7 +2591,8 @@
             setter(result, value, iterator(value, index, collection), collection);
           }
         } else {
-          baseEach(collection, function(value, key, collection) {
+          var func = collection instanceof LazyWrapper ? lazyEach : baseEach;
+          func(collection, function(value, key, collection) {
             setter(result, value, iterator(value, key, collection), collection);
           });
         }
@@ -4418,6 +4419,13 @@
 
     LazyWrapper.prototype.compact = function() {
       return this.filter(identity);
+    }
+
+    LazyWrapper.prototype.countBy = function() {
+      var args = [this];
+      push.apply(args, arguments);
+
+      return countBy.apply(null, args);
     }
 
     LazyWrapper.prototype.take = function(count) {
