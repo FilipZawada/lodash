@@ -4394,6 +4394,7 @@
     LazyWrapper.MAP_FLAG = 1;
     LazyWrapper.FILTER_FLAG = 2;
     LazyWrapper.TAKE_FLAG = 3;
+    LazyWrapper.EACH_FLAG = 4;
 
     function LazyWrapper(source) {
       this.source = source;
@@ -4468,6 +4469,14 @@
       return this.map(property(key));
     }
 
+    LazyWrapper.prototype.each = function(iterator) {
+      this.funcs.push(iterator);
+      this.flags.push(LazyWrapper.EACH_FLAG);
+      this.counts.push(0);
+
+      this.value();
+    }
+
     LazyWrapper.prototype.value = function() {
 
       var dir = this.dir,
@@ -4502,6 +4511,9 @@
                 sourceIndex = max + 1; // finishes lazy loop by making its condition unsatisfied.
               }
               break;
+            case 4: //LazyWrapper.EACH_FLAG:
+              func(val);
+              continue lazy;
           }
         }
 

@@ -661,6 +661,33 @@
     })();
 
     /*--------------------------------------------------------------------------*/
+
+    QUnit.module('lodash.lazy.each');
+
+    (function() {
+
+      test("should execute function for each array element", 1, function () {
+        var collection = [1, 2, 3];
+
+        var actual = [];
+
+        _.lazy(collection).each(function(elem){
+          actual.push(elem + 1);
+        });
+
+        deepEqual(actual, [2, 3, 4]);
+      });
+
+      test("should not return anything", 1, function () {
+        var collection = [1, 2, 3];
+
+        var actual = _.lazy(collection).each(_.noop);
+
+        strictEqual(actual, undefined);
+      });
+    })();
+
+    /*--------------------------------------------------------------------------*/
     QUnit.module('lodash.lazy.reduce');
 
     (function() {
