@@ -732,6 +732,26 @@
       });
     })();
 
+
+    /*--------------------------------------------------------------------------*/
+
+    QUnit.module('lodash.lazy.compact');
+
+    (function() {
+      test("should return existing wrapped values", 1, function () {
+        var wrapped = _.lazy([]);
+        strictEqual(wrapped.compact(), wrapped);
+      });
+
+      test("should return all falsey values", 1, function () {
+        var collection = [0, NaN, 1, undefined, 2, null, 3, "", false];
+
+        var actual = _.lazy(collection).compact().value();
+
+        deepEqual(actual, [1, 2, 3,]);
+      });
+    })();
+
     /*--------------------------------------------------------------------------*/
     QUnit.module('lodash.lazy.pluck');
 

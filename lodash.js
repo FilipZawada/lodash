@@ -4416,6 +4416,10 @@
       return this;
     };
 
+    LazyWrapper.prototype.compact = function() {
+      return this.filter(identity);
+    }
+
     LazyWrapper.prototype.take = function(count) {
       count = count || 1;
 
@@ -4514,7 +4518,7 @@
               }
               break;
             case 3: //LazyWrapper.TAKE_FLAG:
-              if (--counts[i] <= 0) {
+              if (--counts[i] <= 0) { // todo: is this optimization worth doing?
                 sourceIndex = max + 1; // finishes lazy loop by making its condition unsatisfied.
               }
               break;
