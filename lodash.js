@@ -4421,13 +4421,6 @@
       return this.filter(identity);
     }
 
-    LazyWrapper.prototype.countBy = function() {
-      var args = [this];
-      push.apply(args, arguments);
-
-      return countBy.apply(null, args);
-    }
-
     LazyWrapper.prototype.take = function(count) {
       count = count || 1;
 
@@ -4476,16 +4469,6 @@
       // assert that collection is LazyWrapper
       collection.each(iterator);
       return collection;
-    }
-
-    LazyWrapper.prototype.reduce = function(iterator, accumulator, thisArg) {
-      var args = [this];
-      push.apply(args, arguments);
-      return reduce.apply(null, args);
-    }
-
-    LazyWrapper.prototype.pluck = function(key) {
-      return pluck(this, key);
     }
 
     LazyWrapper.prototype.each = function(iterator) {
@@ -9580,6 +9563,17 @@
         };
       });
     }
+
+    // add LazyWrapper methods
+    arrayEach(['reduce', 'pluck', 'countBy'], function(methodName) {
+      var func = lodash[methodName];
+      LazyWrapper.prototype[methodName] = function() {
+        var args = [this];
+        push.apply(args, arguments);
+        return func.apply(null, args);
+      };
+    });
+
     return lodash;
   }
 
