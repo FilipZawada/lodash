@@ -4465,6 +4465,14 @@
       return this;
     }
 
+    LazyWrapper.prototype.difference = function(collection) {
+      var indexOf = getIndexOf();
+      this.filter(function(value) {
+        return indexOf(collection, value) == -1;
+      });
+      return this;
+    }
+
     function lazyEach(collection, iterator) {
       // assert that collection is LazyWrapper
       collection.each(iterator);
@@ -9571,19 +9579,6 @@
         var args = [this];
         push.apply(args, arguments);
         return func.apply(null, args);
-      };
-    });
-
-    // add LazyWrapper non-lazy methods
-    arrayEach(['difference'], function(methodName) {
-      var func = lodash[methodName];
-      LazyWrapper.prototype[methodName] = function() {
-        // todo: need a mechanism to defer this (i.e. defer this.value() call)
-        var args = [this.value()];
-        push.apply(args, arguments);
-        var source = func.apply(null, args);
-        this.constructor(source);
-        return this;
       };
     });
 

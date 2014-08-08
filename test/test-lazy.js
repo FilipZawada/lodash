@@ -787,6 +787,20 @@
 
         deepEqual(actual, [1, 3, 4]);
       });
+
+      test("should be lazy", 1, function () {
+        var spy = {
+          toString:function() {
+            throw new Error("Spy shouldn't be called");
+          }
+        };
+
+        var collection = [1, 2, 3, spy, 4, 5, spy];
+
+        var actual = _.lazy(collection).difference([5, 2, 10]).map(Number).take(2).value();
+
+        deepEqual(actual, [1, 3])
+      });
     })();
 
     /*--------------------------------------------------------------------------*/
