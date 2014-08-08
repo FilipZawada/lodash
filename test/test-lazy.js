@@ -773,6 +773,25 @@
 
     /*--------------------------------------------------------------------------*/
 
+    QUnit.module('lodash.lazy.groupBy');
+
+    (function() {
+
+      test("should return the composed aggregate object", 3, function () {
+        var actual = _.lazy([4.2, 6.1, 6.4]).groupBy(function(num) { return Math.floor(num); });
+
+        deepEqual(actual, { '4': [4.2], '6': [6.1, 6.4] });
+
+        actual = _.lazy([4.2, 6.1, 6.4]).groupBy(function(num) { return this.floor(num); }, Math);
+        deepEqual(actual, { '4': [4.2], '6': [6.1, 6.4] });
+
+        actual = _.lazy(['one', 'two', 'three']).groupBy('length');
+        deepEqual(actual, { '3': ['one', 'two'], '5': ['three'] });
+      });
+    })();
+
+    /*--------------------------------------------------------------------------*/
+
     QUnit.module('lodash.lazy.difference');
 
     (function() {

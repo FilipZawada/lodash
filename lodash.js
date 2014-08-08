@@ -9573,7 +9573,7 @@
     }
 
     // add LazyWrapper methods
-    arrayEach(['reduce', 'pluck', 'countBy'], function(methodName) {
+    arrayEach(['reduce', 'pluck', 'countBy', 'groupBy'], function(methodName) {
       var func = lodash[methodName];
       LazyWrapper.prototype[methodName] = function() {
         var args = [this];
