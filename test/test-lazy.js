@@ -772,6 +772,24 @@
     })();
 
     /*--------------------------------------------------------------------------*/
+
+    QUnit.module('lodash.lazy.difference');
+
+    (function() {
+
+      test("should return existing wrapped values", 1, function () {
+        var wrapped = _.lazy([]);
+        strictEqual(wrapped.difference(), wrapped);
+      });
+
+      test("should return the composed aggregate object", 1, function () {
+        var actual = _.lazy([1, 2, 3, 4, 5]).difference([5, 2, 10]).value();
+
+        deepEqual(actual, [1, 3, 4]);
+      });
+    })();
+
+    /*--------------------------------------------------------------------------*/
     QUnit.module('lodash.lazy.pluck');
 
     (function() {

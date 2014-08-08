@@ -9574,6 +9574,19 @@
       };
     });
 
+    // add LazyWrapper non-lazy methods
+    arrayEach(['difference'], function(methodName) {
+      var func = lodash[methodName];
+      LazyWrapper.prototype[methodName] = function() {
+        // todo: need a mechanism to defer this (i.e. defer this.value() call)
+        var args = [this.value()];
+        push.apply(args, arguments);
+        var source = func.apply(null, args);
+        this.constructor(source);
+        return this;
+      };
+    });
+
     return lodash;
   }
 
