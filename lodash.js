@@ -4389,7 +4389,7 @@
      */
 
     function lazy(value) {
-      return new LazyWrapper(value);
+      return new LazyWrapper(value ? value : []);
     }
 
     LazyWrapper.MAP_FLAG = 1;
