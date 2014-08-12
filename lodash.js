@@ -4395,7 +4395,6 @@
     LazyWrapper.MAP_FLAG = 1;
     LazyWrapper.FILTER_FLAG = 2;
     LazyWrapper.TAKE_FLAG = 3;
-    LazyWrapper.EACH_FLAG = 4;
 
     function LazyWrapper(source) {
       this.source = source;
@@ -4416,10 +4415,6 @@
 
       return this;
     };
-
-    LazyWrapper.prototype.compact = function() {
-      return this.filter(identity);
-    }
 
     LazyWrapper.prototype.take = function(count) {
       count = count || 1;
@@ -4465,26 +4460,10 @@
       return this;
     }
 
-    LazyWrapper.prototype.difference = function(collection) {
-      var indexOf = getIndexOf();
-      this.filter(function(value) {
-        return indexOf(collection, value) == -1;
-      });
-      return this;
-    }
-
     function lazyEach(collection, iterator) {
       // assert that collection is LazyWrapper
       collection.each(iterator);
       return collection;
-    }
-
-    LazyWrapper.prototype.each = function(iterator) {
-      this.funcs.push(iterator);
-      this.flags.push(LazyWrapper.EACH_FLAG);
-      this.counts.push(0);
-
-      this.value();
     }
 
     LazyWrapper.prototype.value = function() {
@@ -4521,9 +4500,6 @@
                 sourceIndex = max + 1; // finishes lazy loop by making its condition unsatisfied.
               }
               break;
-            case 4: //LazyWrapper.EACH_FLAG:
-              func(val);
-              continue lazy;
           }
         }
 
@@ -9571,16 +9547,6 @@
         };
       });
     }
-
-    // add LazyWrapper methods
-    arrayEach(['reduce', 'pluck', 'countBy', 'groupBy'], function(methodName) {
-      var func = lodash[methodName];
-      LazyWrapper.prototype[methodName] = function() {
-        var args = [this];
-        push.apply(args, arguments);
-        return func.apply(null, args);
-      };
-    });
 
     return lodash;
   }
