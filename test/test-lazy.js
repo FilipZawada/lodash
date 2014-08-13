@@ -772,6 +772,30 @@
       });
 
     })();
+
+
+    /*--------------------------------------------------------------------------*/
+
+    QUnit.module('lodash.lazy.first');
+
+    (function () {
+
+      test("should return existing wrapped values", 1, function () {
+        var wrapped = _.lazy([]);
+
+        strictEqual(wrapped.first(), wrapped);
+      });
+
+      test("should return only first element", 1, function () {
+        var collection = [1, 2, 3];
+
+        var actual = _.lazy(collection).first().value();
+
+        deepEqual(actual, [1]);
+      });
+
+    })();
+
     /*--------------------------------------------------------------------------*/
 
     QUnit.module('lodash.lazy.last');
