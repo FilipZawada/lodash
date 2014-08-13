@@ -4479,7 +4479,7 @@
       return this;
     };
 
-    LazyWrapper.prototype.last = function(count) {
+    LazyWrapper.prototype.takeRight = function(count) {
       this.reverse();
       this.take(count);
       this.reverse();
