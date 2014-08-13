@@ -4421,6 +4421,14 @@
       return this.take(this.max - this.min);
     }
 
+    LazyWrapper.prototype.drop = function(n) {
+      if(this.filterApplied) {
+        this.constructor(this.value()); // todo: defer
+      }
+      this.last(this.max - this.min - n);
+      return this;
+    }
+
     LazyWrapper.prototype.takeWhile = function(predicate, thisArg) {
       var satisfied = true;
       predicate = getCallback(predicate, thisArg, 3);

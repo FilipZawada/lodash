@@ -962,6 +962,34 @@
 
     /*--------------------------------------------------------------------------*/
 
+    QUnit.module('lodash.drop');
+
+    (function() {
+      var array = [1, 2, 3];
+
+
+      test("should return existing wrapped values", 1, function () {
+        var wrapped = _.lazy([]);
+
+        strictEqual(wrapped.drop(), wrapped);
+      });
+
+      test('should drop the first two elements', 1, function() {
+        deepEqual(_.lazy(array).drop(2).value(), [3]);
+      });
+
+      test('should drop the first two elements when reversed', 1, function() {
+        deepEqual(_.lazy(array).reverse().drop(2).value(), [1]);
+      });
+
+      test('should drop the first two elements when filtered', 1, function() {
+        deepEqual(_.lazy([1, 0, 2, 0, 3, 0]).filter(_.identity).drop(2).value(), [3]);
+      });
+
+    }());
+
+    /*--------------------------------------------------------------------------*/
+
     QUnit.module('lodash.lazy.dropWhile');
 
     (function () {
