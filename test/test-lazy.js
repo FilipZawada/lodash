@@ -858,6 +858,14 @@
         deepEqual(actual, [1]);
       });
 
+      test("should work with filter", 1, function () {
+        var collection = [1, 0, 2, 0, 3, 0, 4];
+
+        var actual = _.lazy(collection).filter(_.identity).rest().value();
+
+        deepEqual(actual, [1, 2, 3]);
+      })
+
     })();
 
     /*--------------------------------------------------------------------------*/

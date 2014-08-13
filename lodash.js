@@ -4415,6 +4415,9 @@
     };
 
     LazyWrapper.prototype.rest = function() {
+      if(this.filterApplied) {
+        this.constructor(this.value()); // todo: defer
+      }
       return this.take(this.max - this.min);
     }
 
