@@ -4423,9 +4423,16 @@
 
     LazyWrapper.prototype.drop = function(n) {
       if(this.filterApplied) {
-        this.constructor(this.value()); // todo: defer
+        this.filter(function () {
+          return --n < 0;
+        });
+      } else {
+        if(this.dir > 0) {
+          this.min = Math.min(this.max, this.min + n);
+        } else {
+          this.max = Math.max(this.min, this.max - n);
+        }
       }
-      this.last(this.max - this.min - n);
       return this;
     }
 
