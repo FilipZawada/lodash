@@ -4500,7 +4500,7 @@
           var func = funcs[i];
           switch (flags[i]) {
             case 1: //LazyWrapper.MAP_FLAG:
-              val = func(val);
+              val = func(val, sourceIndex - dir, source);
               break;
             case 2: //LazyWrapper.FILTER_FLAG:
               if (!func(val)) {

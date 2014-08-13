@@ -681,6 +681,17 @@
 
         deepEqual(actual, [2, 3, 4, 5]);
       });
+
+      test('should provide the correct `predicate` arguments', 1, function() {
+        var args = [],
+            array = [1, 2];
+
+        _.lazy(array).map(function() {
+          args.push(slice.call(arguments));
+        }).value();
+
+        deepEqual(args, [[1, 0, array], [2, 1, array]]);
+      });
     })();
 
 
