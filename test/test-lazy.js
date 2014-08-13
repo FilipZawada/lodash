@@ -920,6 +920,24 @@
         deepEqual(actual, [3]);
       });
 
+      test('should provide the correct `predicate` arguments', 1, function() {
+        var args;
+
+        _.lazy(array).dropWhile(function() {
+          args = slice.call(arguments);
+        }).value();
+
+        deepEqual(args, [1, 0, array]);
+      });
+
+      test('should support the `thisArg` argument', 1, function() {
+        var actual = _.lazy(array).dropWhile(function(num, index) {
+          return this[index] < 3;
+        }, array).value();
+
+        deepEqual(actual, [3]);
+      });
+
       test('should work with an object for `predicate`', 1, function() {
         deepEqual(_.lazy(objects).dropWhile({ 'b': 2 }).value(), objects.slice(1));
       });

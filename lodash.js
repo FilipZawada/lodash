@@ -4425,8 +4425,8 @@
       var satisfied = false;
       predicate = getCallback(predicate, thisArg, 3);
 
-      return this.filter(function(value) {
-        return satisfied || (satisfied = !predicate(value));
+      return this.filter(function(value, index, array) {
+        return satisfied || (satisfied = !predicate(value, index, array));
       });
     }
 
