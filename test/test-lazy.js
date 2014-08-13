@@ -796,6 +796,29 @@
 
     })();
 
+
+    /*--------------------------------------------------------------------------*/
+
+    QUnit.module('lodash.lazy.last');
+
+    (function () {
+
+      test("should return existing wrapped values", 1, function () {
+        var wrapped = _.lazy([]);
+
+        strictEqual(wrapped.last(), wrapped);
+      });
+
+      test("should return only last element", 1, function () {
+        var collection = [1, 2, 3];
+
+        var actual = _.lazy(collection).last().value();
+
+        deepEqual(actual, [3]);
+      });
+
+    })();
+
     /*--------------------------------------------------------------------------*/
 
     QUnit.module('lodash.lazy.takeRight');
