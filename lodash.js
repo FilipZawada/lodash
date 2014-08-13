@@ -4402,7 +4402,6 @@
       this.counts = [];
       this.min = 0;
       this.max = source.length - 1;
-      this.limit = this.max;
       this.filterApplied = false;
       this.dir = 1;
     }
@@ -4416,13 +4415,11 @@
     };
 
     LazyWrapper.prototype.rest = function() {
-      return this.take(this.limit);
+      return this.take(this.max - this.min);
     }
 
     LazyWrapper.prototype.take = function(count) {
       count = count || 1;
-
-      this.limit = Math.min(this.limit, count);
 
       this.funcs.push(function() {});
       this.counts.push(count);

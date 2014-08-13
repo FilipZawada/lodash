@@ -842,6 +842,22 @@
         deepEqual(actual, [1, 2]);
       });
 
+      test("should work with reverse", 1, function () {
+        var collection = [1, 2, 3];
+
+        var actual = _.lazy(collection).reverse().rest().value();
+
+        deepEqual(actual, [3, 2]);
+      });
+
+      test("should work with take", 1, function () {
+        var collection = [1, 2, 3];
+
+        var actual = _.lazy(collection).take(2).rest().value();
+
+        deepEqual(actual, [1]);
+      });
+
     })();
 
     /*--------------------------------------------------------------------------*/
