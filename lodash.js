@@ -2591,8 +2591,7 @@
             setter(result, value, iterator(value, index, collection), collection);
           }
         } else {
-          var func = collection instanceof LazyWrapper ? lazyEach : baseEach;
-          func(collection, function(value, key, collection) {
+          baseEach(collection, function(value, key, collection) {
             setter(result, value, iterator(value, key, collection), collection);
           });
         }
@@ -5124,10 +5123,6 @@
      * // => ['barney', 'fred']
      */
     function map(collection, iterator, thisArg) {
-      if(collection instanceof LazyWrapper) {
-        collection.map(iterator);
-        return collection;
-      }
       iterator = getCallback(iterator, thisArg, 3);
 
       var func = isArray(collection) ? arrayMap : baseMap;
@@ -5400,13 +5395,8 @@
      * // => { 'a': 3, 'b': 6, 'c': 9 }
      */
     function reduce(collection, iterator, accumulator, thisArg) {
-      var callback = getCallback(iterator, thisArg, 4);
-
-      if(collection instanceof LazyWrapper) {
-        return baseReduce(collection, callback, accumulator, arguments.length < 3, lazyEach);
-      }
       var func = isArray(collection) ? arrayReduce : baseReduce;
-      return func(collection, callback, accumulator, arguments.length < 3, baseEach);
+      return func(collection, getCallback(iterator, thisArg, 4), accumulator, arguments.length < 3, baseEach);
     }
 
     /**
@@ -9547,7 +9537,6 @@
         };
       });
     }
-
     return lodash;
   }
 
