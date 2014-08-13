@@ -870,6 +870,20 @@
 
     /*--------------------------------------------------------------------------*/
 
+    QUnit.module('lodash.lazy.dropWhile');
+
+    (function () {
+
+      test("should return existing wrapped values", 1, function () {
+        var wrapped = _.lazy([]);
+
+        strictEqual(wrapped.dropWhile(), wrapped);
+      });
+
+    })();
+
+    /*--------------------------------------------------------------------------*/
+
     QUnit.config.asyncRetries = 10;
     QUnit.config.hidepassed = true;
 

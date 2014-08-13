@@ -4421,6 +4421,10 @@
       return this.take(this.max - this.min);
     }
 
+    LazyWrapper.prototype.dropWhile = function() {
+      return this;
+    }
+
     LazyWrapper.prototype.take = function(count) {
       count = count || 1;
 
