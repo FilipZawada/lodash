@@ -824,6 +824,28 @@
 
     /*--------------------------------------------------------------------------*/
 
+    QUnit.module('lodash.lazy.rest');
+
+    (function () {
+
+      test("should return existing wrapped values", 1, function () {
+        var wrapped = _.lazy([]);
+
+        strictEqual(wrapped.rest(), wrapped);
+      });
+
+      test("should return all elements except last", 1, function () {
+        var collection = [1, 2, 3];
+
+        var actual = _.lazy(collection).rest().value();
+
+        deepEqual(actual, [1, 2]);
+      });
+
+    })();
+
+    /*--------------------------------------------------------------------------*/
+
     QUnit.config.asyncRetries = 10;
     QUnit.config.hidepassed = true;
 

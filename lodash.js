@@ -4388,7 +4388,7 @@
      */
 
     function lazy(value) {
-      return new LazyWrapper(value ? value : []);
+      return new LazyWrapper(value || []);
     }
 
     LazyWrapper.MAP_FLAG = 1;
@@ -4414,6 +4414,10 @@
 
       return this;
     };
+
+    LazyWrapper.prototype.rest = function() {
+      return this.take(this.limit);
+    }
 
     LazyWrapper.prototype.take = function(count) {
       count = count || 1;
