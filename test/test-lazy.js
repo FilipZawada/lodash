@@ -864,7 +864,7 @@
         var actual = _.lazy(collection).filter(_.identity).rest().value();
 
         deepEqual(actual, [1, 2, 3]);
-      })
+      });
 
     })();
 
@@ -874,10 +874,50 @@
 
     (function () {
 
+      var array = [1, 2, 3];
+
+      var objects = [
+        { 'a': 2, 'b': 2 },
+        { 'a': 1, 'b': 1 },
+        { 'a': 0, 'b': 0 }
+      ];
+
+      function lt3(num) {
+        return num < 3;
+      }
+
       test("should return existing wrapped values", 1, function () {
         var wrapped = _.lazy([]);
 
         strictEqual(wrapped.dropWhile(), wrapped);
+      });
+
+      test('should drop elements while `predicate` returns truthy', 1, function() {
+        var actual = _.lazy(array).dropWhile(lt3).value();
+
+        deepEqual(actual, [3]);
+      });
+
+      test('should work with an object for `predicate`', 1, function() {
+        deepEqual(_.lazy(objects).dropWhile({ 'b': 2 }).value(), objects.slice(1));
+      });
+
+      test('should work with a "_.pluck" style `predicate`', 1, function() {
+        deepEqual(_.lazy(objects).dropWhile('b').value(), objects.slice(2));
+      });
+
+      test('should return a wrapped value when chaining', 2, function() {
+        if (!isNpm) {
+          var actual = _(array).dropWhile(function(num) {
+            return num < 3;
+          });
+
+          ok(actual instanceof _);
+          deepEqual(actual.value(), [3]);
+        }
+        else {
+          skipTest(2);
+        }
       });
 
     })();
