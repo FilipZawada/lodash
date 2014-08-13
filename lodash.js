@@ -4503,7 +4503,7 @@
               val = func(val, sourceIndex - dir, source);
               break;
             case 2: //LazyWrapper.FILTER_FLAG:
-              if (!func(val)) {
+              if (!func(val, sourceIndex - dir, source)) {
                 continue lazy;
               }
               break;
