@@ -4423,16 +4423,17 @@
 
     LazyWrapper.prototype.drop = function(n) {
       if(this.filterApplied) {
-        this.filter(function () {
-          return --n < 0;
-        });
-      } else {
-        if(this.dir > 0) {
-          this.min = Math.min(this.max, this.min + n);
-        } else {
-          this.max = Math.max(this.min, this.max - n);
-        }
+        this.constructor(this.value()); // todo: defer
       }
+      this.takeRight(this.max - this.min + 1 - n);
+      return this;
+    }
+
+    LazyWrapper.prototype.dropRight = function(n) {
+      if(this.filterApplied) {
+        this.constructor(this.value()); // todo: defer
+      }
+      this.take(this.max - this.min + 1 - n);
       return this;
     }
 
